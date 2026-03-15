@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEFCON 1: WORLD TENSION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050000;
+            --alert-red: #ff003c;
+            --dark-red: #3a0000;
+            --terminal-green: #00ff41;
+        }
+
+        body, html {
+            margin: 0; padding: 0; height: 100%;
+            background-color: var(--bg-color);
+            color: var(--alert-red);
+            font-family: 'Share Tech Mono', monospace;
+            overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+
+        /* 클릭 유도 시작 화면 */
+        #boot-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: black; z-index: 999;
+            display: flex; justify-content: center; align-items: center;
+            flex-direction: column; cursor: pointer;
+            color: var(--alert-red); font-size: 2rem;
+            text-shadow: 0 0 10px var(--alert-red);
+        }
+
+        .blink { animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+
+        /* 메인 UI 컨테이너 (초기엔 숨김) */
+        #main-ui {
+            display: none; height: 100%; width: 100%; padding: 2rem;
+            box-sizing: border-box; position: relative; z-index: 10;
+        }
+
+        /* 상단 경고 배너 */
+        .alert-banner {
+            width: 100%; background-color: var(--alert-red); color: black;
+            text-align: center; font-size: 1.5rem; font-weight: bold;
+            padding: 10px 0; text-transform: uppercase; letter-spacing: 5px;
+            animation: flashBanner 0.8s infinite alternate;
+        }
+        @keyframes flashBanner {
+            0% { background-color: var(--alert-red); color: black; }
+            100% { background-color: var(--dark-red); color: var(--alert-red); }
+        }
+
+        /* 중앙 긴장도 표시 영역 */
+        .tension-center {
+            flex-grow: 1; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+        }
+
+        h1 {
+            font-size: 5vw; margin: 0 0 20px 0; text-shadow: 0 0 20px var(--alert-red);
+            letter-spacing: 2px;
+        }
+
+        /* 프로그레스 바 */
+        .progress-container {
+            width: 80%; max-width: 800px; height: 50px;
+            border: 3px solid var(--alert-red); padding: 5px;
+            box-shadow: 0 0 15px var(--alert-red); position: relative;
+        }
+        
+        .progress-bar {
+            height: 100%; width: 100%; background-color: var(--alert-red);
+            background-image: repeating-linear-gradient(
+                45deg, transparent, transparent 15px,
+                rgba(0,0,0,0.5) 15px, rgba(0,0,0,0.5) 30px
+            );
+            animation: slideStripes 1s linear infinite, pulseBar 0.5s infinite alternate;
+        }
+
+        @keyframes slideStripes { 100% { background-position: 42px 0; } }
+        @keyframes pulseBar { 100% { opacity: 0.7; } }
+
+        /* 터미널 로그 콘솔 */
+        .console-container {
+            height: 30%; width: 100%; border-top: 2px solid var(--dark-red);
+            padding-top: 10px; display: flex; flex-direction: column;
+        }
+        .console-title {
+            color: #888; font-size: 0.9rem; margin-bottom: 5px;
+        }
+        #console-output {
+            flex-grow: 1; overflow-y: auto; color: var(--terminal-green);
+            font-size: 1.1rem; text-shadow: 0 0 5px var(--terminal-green);
+            display: flex; flex-direction: column; justify-content: flex-end;
+        }
+        .log-entry { margin: 3px 0; }
+        .log-time { color: #888; margin-right: 10px; }
+        .log-alert { color: var(--alert-red); }
+        .log-warn { color: #ffae00; }
+
+        /* 배경 사이렌 깜빡임 & 스캔라인 */
+        .siren-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(255,0,0,0.1) 0%, rgba(0,0,0,0) 80%);
+            pointer-events: none; z-index: 1; animation: sirenPulse 1s infinite alternate;
+        }
+        @keyframes sirenPulse { 100% { opacity: 0.2; transform: scale(1.1); } }
+
+        .scanlines {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px; pointer-events: none; z-index: 20;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="boot-screen">
+        <div class="blink">[ WARNING: AUTHORIZATION REQUIRED ]</div>
+        <div style="font-size: 1.2rem; margin-top: 20px; color: #888;">CLICK ANYWHERE TO ACKNOWLEDGE ALERT</div>
+    </div>
+
+    <div class="scanlines"></div>
+    <div class="siren-bg" style="display: none;" id="siren-bg"></div>
+
+    <div id="main-ui">
+        <div class="alert-banner">
+            <span class="blink">⚠</span> GLOBAL ALERT - CRITICAL STATUS - WORLDWIDE ESCALATION DETECTED <span class="blink">⚠</span>
+        </div>
+
+        <div class="tension-center">
+            <h1>WORLD TENSION: 100%</h1>
+            <div class="progress-container">
+                <div class="progress-bar"></div>
+            </div>
+            <h2 class="blink" style="margin-top: 20px;">POINT OF NO RETURN REACHED</h2>
+        </div>
+
+        <div class="console-container">
+            <div class="console-title">MILITARY COMMAND SECURE FEED // LIVE</div>
+            <div id="console-output"></div>
+        </div>
+    </div>
+
+    <script>
+        const bootScreen = document.getElementById('boot-screen');
+        const mainUI = document.getElementById('main-ui');
+        const sirenBg = document.getElementById('siren-bg');
+        const consoleOutput = document.getElementById('console-output');
+
+        // 사이렌 사운드 생성 (Web Audio API)
+        let audioCtx;
+        function startSiren() {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            osc.type = 'sawtooth';
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            // 볼륨 설정
+            gainNode.gain.value = 0.1;
+
+            // 위잉위잉 사이렌 피치 변화 로직
+            const rampTime = 1.5;
+            let now = audioCtx.currentTime;
+            
+            // 100초 동안 사이렌 반복 예약
+            for(let i=0; i<100; i++) {
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.linearRampToValueAtTime(800, now + rampTime/2);
+                osc.frequency.linearRampToValueAtTime(400, now + rampTime);
+                now += rampTime;
+            }
+
+            osc.start();
+        }
+
+        // 랜덤 로그 메시지 풀
+        const logMessages = [
+            { type: 'alert', text: "Strategic missile forces mobilizing." },
+            { type: 'warn', text: "Multiple global conflicts escalating." },
+            { type: 'alert', text: "Diplomatic channels collapsing." },
+            { type: 'info', text: "DEFCON 1 protocol initiated." },
+            { type: 'alert', text: "Unidentified radar signatures detected." },
+            { type: 'warn', text: "Civilian evacuation orders issued in Sector 7." },
+            { type: 'info', text: "Automated retaliatory systems online." },
+            { type: 'alert', text: "WARNING: Nuclear launch codes accessed." }
+        ];
+
+        function addLog() {
+            const now = new Date();
+            const timeString = now.toISOString().split('T')[1].slice(0, 8);
+            const randomLog = logMessages[Math.floor(Math.random() * logMessages.length)];
+            
+            let prefix = "";
+            if(randomLog.type === 'alert') prefix = "<span class='log-alert'>[CRITICAL]</span>";
+            else if(randomLog.type === 'warn') prefix = "<span class='log-warn'>[WARNING]</span>";
+            else prefix = "<span style='color: #0088ff'>[INFO]</span>";
+
+            const logElement = document.createElement('div');
+            logElement.className = 'log-entry';
+            logElement.innerHTML = `<span class='log-time'>${timeString}</span> ${prefix} ${randomLog.text}`;
+            
+            consoleOutput.appendChild(logElement);
+
+            // 로그가 너무 많아지면 위쪽 삭제
+            if(consoleOutput.children.length > 8) {
+                consoleOutput.removeChild(consoleOutput.firstChild);
+            }
+        }
+
+        // 화면 클릭 시 실행
+        bootScreen.addEventListener('click', () => {
+            bootScreen.style.display = 'none';
+            mainUI.style.display = 'flex';
+            sirenBg.style.display = 'block';
+            
+            startSiren();
+            
+            // 초기 로그 몇 개 출력
+            addLog(); addLog();
+            
+            // 1.5 ~ 4초 간격으로 랜덤하게 로그 추가
+            setInterval(addLog, Math.random() * 2500 + 1500);
+        });
+    </script>
+</body>
+</html>
